@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HeapFunctions {
+public class HeapFunctions extends HeapFunctionsBase {
 
     @SuppressWarnings("unused")
     public static int getId(Object r) {
@@ -48,10 +48,6 @@ public class HeapFunctions {
         }
     }
 
-    private static Object resolveReference(Object value) {
-        return value instanceof IObject ? HeapReference.valueOf((IObject) value) : value;
-    }
-
     @SuppressWarnings("unused")
     public static Object getByKey(Object r, String key) {
         HeapReference ref = ensureHeapReference(r);
@@ -68,32 +64,6 @@ public class HeapFunctions {
             return null;
         } catch (SnapshotException e) {
             throw new RuntimeException("Unable to lookup key " + key + " in " + r, e);
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public static Map asMap(Object r) {
-        HeapReference ref = ensureHeapReference(r);
-        if (ref == null) {
-            return null;
-        }
-
-        try {
-            ExtractedMap extractedMap = CollectionExtractionUtils.extractMap(ref.getIObject());
-            if (extractedMap == null) {
-                return Collections.emptyMap();
-            } else {
-                Map result = new HashMap();
-                for (Map.Entry<IObject, IObject> entry : extractedMap) {
-                    result.put(
-                            toString(entry.getKey()),
-                            resolveReference(entry.getValue())
-                    );
-                }
-                return result;
-            }
-        } catch (SnapshotException e) {
-            throw new RuntimeException("Unable to extract map from " + r, e);
         }
     }
 
@@ -197,16 +167,4 @@ public class HeapFunctions {
 
     }
 
-    private static HeapReference ensureHeapReference(Object r) {
-        return (r == null || !(r instanceof HeapReference)) ?
-                null :
-                (HeapReference) r;
-    }
-
-    private static String toString(IObject o) {
-        String classSpecific = o.getClassSpecificName();
-        if (classSpecific != null)
-            return classSpecific;
-        return o.getDisplayName();
-    }
 }
