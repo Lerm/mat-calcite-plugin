@@ -3,10 +3,13 @@ package com.github.vlsi.mat.calcite.functions;
 import com.github.vlsi.mat.calcite.HeapReference;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
+import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.*;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class HeapFunctions {
@@ -37,17 +40,16 @@ public class HeapFunctions {
 
     public static String introspect(Object r) {
         if (r instanceof HeapReference) {
-            return "HeapReference: "+toString(r);
+            return "HeapReference: " + toString(r);
         } else if (r instanceof Object[]) {
-            return "Array, length = "+((Object[])r).length;
-        } else
-        {
-            return "Primitive type: "+toString(r);
+            return "Array, length = " + ((Object[]) r).length;
+        } else {
+            return "Primitive type: " + toString(r);
         }
     }
 
     private static Object resolveReference(Object value) {
-        return value instanceof IObject ? HeapReference.valueOf((IObject)value) : value;
+        return value instanceof IObject ? HeapReference.valueOf((IObject) value) : value;
     }
 
     @SuppressWarnings("unused")
@@ -66,6 +68,32 @@ public class HeapFunctions {
             return null;
         } catch (SnapshotException e) {
             throw new RuntimeException("Unable to lookup key " + key + " in " + r, e);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public static Map asMap(Object r) {
+        HeapReference ref = ensureHeapReference(r);
+        if (ref == null) {
+            return null;
+        }
+
+        try {
+            ExtractedMap extractedMap = CollectionExtractionUtils.extractMap(ref.getIObject());
+            if (extractedMap == null) {
+                return Collections.emptyMap();
+            } else {
+                Map result = new HashMap();
+                for (Map.Entry<IObject, IObject> entry : extractedMap) {
+                    result.put(
+                            toString(entry.getKey()),
+                            resolveReference(entry.getValue())
+                    );
+                }
+                return result;
+            }
+        } catch (SnapshotException e) {
+            throw new RuntimeException("Unable to extract map from " + r, e);
         }
     }
 
@@ -164,7 +192,7 @@ public class HeapFunctions {
             ISnapshot snapshot = ref.getIObject().getSnapshot();
             return HeapReference.valueOf(snapshot.getObject(snapshot.getImmediateDominatorId(ref.getIObject().getObjectId())));
         } catch (SnapshotException e) {
-            throw new RuntimeException("Cannot obtain immediate dominator object for "+r, e);
+            throw new RuntimeException("Cannot obtain immediate dominator object for " + r, e);
         }
 
     }
