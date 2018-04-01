@@ -3,6 +3,7 @@ package com.github.vlsi.mat.calcite.functions;
 import java.lang.reflect.Type;
 import java.util.*;
 
+import com.github.vlsi.mat.calcite.collections.CollectionsActions;
 import org.apache.calcite.adapter.java.AbstractQueryableTable;
 import org.apache.calcite.linq4j.BaseQueryable;
 import org.apache.calcite.linq4j.Enumerator;
@@ -75,7 +76,7 @@ public class TableFunctions {
         } else {
             HeapReference ref = (HeapReference) r;
             try {
-                ExtractedMap extractedMap = CollectionExtractionUtils.extractMap(ref.getIObject());
+                ExtractedMap extractedMap = CollectionsActions.extractMap(ref.getIObject());
                 if (extractedMap == null) {
                     references = Collections.emptyList();
                 } else {
