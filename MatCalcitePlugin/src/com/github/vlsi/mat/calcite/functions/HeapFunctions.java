@@ -4,13 +4,10 @@ import com.github.vlsi.mat.calcite.HeapReference;
 import com.github.vlsi.mat.calcite.collections.CollectionsActions;
 import org.eclipse.mat.SnapshotException;
 import org.eclipse.mat.inspections.collectionextract.CollectionExtractionUtils;
-import org.eclipse.mat.inspections.collectionextract.ExtractedMap;
 import org.eclipse.mat.inspections.collectionextract.ICollectionExtractor;
 import org.eclipse.mat.snapshot.ISnapshot;
 import org.eclipse.mat.snapshot.model.*;
 
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 public class HeapFunctions extends HeapFunctionsBase {
@@ -39,6 +36,17 @@ public class HeapFunctions extends HeapFunctionsBase {
         return r.toString();
     }
 
+    @SuppressWarnings("unused")
+    public static String getStringContent(Object r, int limit) {
+        try {
+            HeapReference ref = ensureHeapReference(r);
+            return ref == null ? "" : PrettyPrinter.objectAsString(ref.getIObject(), limit);
+        } catch (SnapshotException e) {
+            throw new RuntimeException("Unable to represent as string", e);
+        }
+    }
+
+    @SuppressWarnings("unused")
     public static String introspect(Object r) {
         if (r instanceof HeapReference) {
             return "HeapReference: " + toString(r);
