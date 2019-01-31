@@ -2,8 +2,6 @@ package com.github.vlsi.mat.calcite.schema.references;
 
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import org.apache.calcite.adapter.java.AbstractQueryableTable;
 import org.apache.calcite.linq4j.Enumerator;
 import org.apache.calcite.linq4j.Linq4j;
@@ -43,9 +41,8 @@ public class OutboundReferencesTable extends AbstractQueryableTable {
                 FluentIterable<Object[]> it = FluentIterable
                         .from(references)
                         .transform(new Function<NamedReference, Object[]>() {
-                            @Nullable
                             @Override
-                            public Object[] apply(@Nullable NamedReference namedReference) {
+                            public Object[] apply(NamedReference namedReference) {
                                 HeapReference ref = null;
                                 try {
                                     ref = HeapReference.valueOf(namedReference.getObject());
